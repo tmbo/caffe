@@ -61,6 +61,27 @@ class UniformFiller : public Filler<Dtype> {
   }
 };
 
+/// @brief Fills a Blob with a sequence 0-1-1-1..0-1-1-1.. as needed for LRCNs. Param indicates the length of the sequence.
+/// Only fixed length sequences are supported right now.
+template <typename Dtype>
+class SequenceFiller : public Filler<Dtype> {
+ public:
+  explicit SequenceFiller(const FillerParameter& param)
+      : Filler<Dtype>(param) {}
+  virtual void Fill(Blob<Dtype>* blob) {
+    Dtype* data = blob->mutable_cpu_data();
+    const int count = blob->count();
+    const int sequenceLength = this->filler_param_.value();
+    CHECK(count);
+    for (int i = 0; i < count; ++i) {
+      data[i] =  i % sequenceLength == 0 ? 0 : 1;
+    }
+    CHECK_EQ(this->filler_param_.sparse(), -1)
+         << "Sparsity not supported by this Filler.";
+  }
+};
+
+
 /// @brief Fills a Blob with Gaussian-distributed values @f$ x = a @f$.
 template <typename Dtype>
 class GaussianFiller : public Filler<Dtype> {
@@ -168,6 +189,8 @@ Filler<Dtype>* GetFiller(const FillerParameter& param) {
   const std::string& type = param.type();
   if (type == "constant") {
     return new ConstantFiller<Dtype>(param);
+  } else if (type == "sequence") {
+    return new SequenceFiller<Dtype>(param);
   } else if (type == "gaussian") {
     return new GaussianFiller<Dtype>(param);
   } else if (type == "positive_unitball") {
