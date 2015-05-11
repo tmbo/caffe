@@ -5,13 +5,12 @@ layer {
   top: "sequence"
   dummy_data_param {
     shape {
-      dim: 101 
-      dim: 7
-      dim: 3
+      dim: 5
+      dim: 2
     }
     data_filler {
       type: "sequence"
-      value: 16
+      value: 3
     }
   }
 }
