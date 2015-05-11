@@ -2,7 +2,7 @@ name: "activity_recognition"
 layer {
   name: "sequence"
   type: "DummyData"
-  top: "Sequence"
+  top: "sequence"
   dummy_data_param {
     shape {
       dim: 101 
@@ -10,16 +10,9 @@ layer {
       dim: 3
     }
     data_filler {
-      type: "constant"
-      value: 0
+      type: "sequence"
+      value: 16
     }
   }
 }
-layer {
-  name: "output"
-  type: "HDF5_OUTPUT"
-  bottom: "sequence"
-  hdf5_output_param {
-    file_name: "foo"
-  }
-}
+
