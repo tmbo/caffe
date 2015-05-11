@@ -1,25 +1,29 @@
-# The train/test net protocol buffer definition
 net: "net.prototxt"
-# test_iter specifies how many forward passes the test should carry out.
-# In the case of MNIST, we have test batch size 100 and 100 test iterations,
-# covering the full 10,000 testing images.
-test_iter: 100
-# Carry out testing every 500 training iterations.
-test_interval: 500
-# The base learning rate, momentum and the weight decay of the network.
+
+# activity_recognition.prototxt supports three variants of the LRCN architecture:
+# (1) stage: 'factored' stage: '2-layer'
+# (2) stage: 'unfactored' stage: '1-layer'
+# (3) stage: 'unfactored' stage: '2-layer'
+# This solver uses variant (1).
+# To use a different variant, modify the states (train_state, test_state)
+# below as appropriate:
+
+train_state: { stage: 'freeze-convnet' stage: 'factored' stage: '2-layer' }
+test_iter: 25
+test_state: { stage: 'freeze-convnet' stage: 'factored' stage: '2-layer' stage: 'test-on-train' }
+# test_iter: 25
+# test_state: { stage: 'freeze-convnet' stage: 'factored' stage: '2-layer' stage: 'test-on-val' }
+test_interval: 1000
 base_lr: 0.01
+lr_policy: "step"
+gamma: 0.5
+stepsize: 20000
+display: 1
+max_iter: 110000
 momentum: 0.9
-weight_decay: 0.0005
-# The learning rate policy
-lr_policy: "inv"
-gamma: 0.0001
-power: 0.75
-# Display every 100 iterations
-display: 100
-# The maximum number of iterations
-max_iter: 10000
-# snapshot intermediate results
+weight_decay: 0.0000
 snapshot: 5000
 snapshot_prefix: "./snapshots/"
-# solver mode: CPU or GPU
-solver_mode: CPU
+random_seed: 1701
+average_loss: 100
+clip_gradients: 10
