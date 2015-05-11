@@ -6,7 +6,7 @@
 #     K. Saenko, T. Darrell. "Long-term Recurrent Convolutional Networks for
 #     Visual Recognition and Description." arXiv preprint arXiv:1411.4389 (2014).
 
-name: "activity_recognition_caffenet_to_lstm"
+name: "activity_recognition_caffenet"
 layer {
   name: "data"
   type: "Data"
@@ -54,9 +54,8 @@ layer {
   top: "sequence"
   dummy_data_param {
     shape {
-      dim: 101
-      dim: 7
-      dim: 3
+      dim: 100
+      dim: 4096
     }
     data_filler {
       type: "sequence"
@@ -444,47 +443,49 @@ layer {
 }
 
 layer {
-  name: "lstm1"
+  name: "lstm"
   type: "LSTM"
   bottom: "fc6"
-  top: "lstm1"
+  bottom: "sequence"
+  top: "lstm"
   include { stage: "unfactored" }
-  # recurrent_param {
-  #   num_output: 1000
-  #   weight_filler {
-  #     type: "uniform"
-  #     min: -0.08
-  #     max: 0.08
-  #   }
-  #   bias_filler {
-  #     type: "constant"
-  #     value: 0
-  #   }
-  # }
+  recurrent_param {
+    num_output: 1000
+    weight_filler {
+      type: "uniform"
+      min: -0.08
+      max: 0.08
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
 }
 layer {
-  name: "lstm1"
+  name: "lstm"
   type: "LSTM"
   bottom: "fc6"
-  top: "lstm1"
+  bottom: "sequence"
+  top: "lstm"
   include { stage: "factored" }
-  # recurrent_param {
-  #   num_output: 1000
-  #   weight_filler {
-  #     type: "uniform"
-  #     min: -0.08
-  #     max: 0.08
-  #   }
-  #   bias_filler {
-  #     type: "constant"
-  #     value: 0
-  #   }
-  # }
+  recurrent_param {
+    num_output: 1000
+    weight_filler {
+      type: "uniform"
+      min: -0.08
+      max: 0.08
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
 }
 layer {
   name: "loss"
   type: "SoftmaxWithLoss"
-  bottom: "lstm1"
+  bottom: "lstm"
   bottom: "label"
   top: "loss"
   # loss_weight: 20
@@ -498,7 +499,7 @@ layer {
 layer {
   name: "accuracy"
   type: "Accuracy"
-  bottom: "lstm1"
+  bottom: "lstm"
   bottom: "label"
   top: "accuracy"
   include {
