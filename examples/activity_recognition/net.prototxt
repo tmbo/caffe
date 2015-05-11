@@ -9,7 +9,7 @@
 name: "activity_recognition_caffenet_to_lstm"
 layer {
   name: "data"
-  type: "ImageData"
+  type: "Data"
   top: "data"
   top: "label"
   include { phase: TRAIN }
@@ -20,16 +20,15 @@ layer {
     mean_value: 117
     mean_value: 123
   }
-  image_data_param {
-    source: "./examples/coco_caption/h5_data/buffer_100/train_aligned_20_batches/image_list.with_dummy_labels.txt"
+  data_param {
+    backend: LMDB
+    source: "/opt/data_sets/UCF-101/lmdb/"
     batch_size: 100
-    new_height: 256
-    new_width: 256
   }
 }
 layer {
   name: "data"
-  type: "ImageData"
+  type: "Data"
   top: "data"
   top: "label"
   include {
@@ -43,11 +42,10 @@ layer {
     mean_value: 117
     mean_value: 123
   }
-  image_data_param {
-    source: "./examples/coco_caption/h5_data/buffer_100/train_aligned_20_batches/image_list.with_dummy_labels.txt"
+  data_param {
+    backend: LMDB
+    source: "/opt/data_sets/UCF-101/lmdb/"
     batch_size: 100
-    new_height: 256
-    new_width: 256
   }
 }
 layer {
