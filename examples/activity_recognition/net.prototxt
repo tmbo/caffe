@@ -49,6 +49,22 @@ layer {
   }
 }
 layer {
+  name: "sequence"
+  type: "DummyData"
+  top: "sequence"
+  dummy_data_param {
+    shape {
+      dim: 101
+      dim: 7
+      dim: 3
+    }
+    data_filler {
+      type: "sequence"
+      value: 16
+    }
+  }
+}
+layer {
   name: "conv1"
   type: "Convolution"
   bottom: "data"
