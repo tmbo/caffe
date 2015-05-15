@@ -23,7 +23,7 @@ layer {
   data_param {
     backend: LMDB
     source: "/opt/data_sets/UCF-101/lmdb/"
-    batch_size: 100
+    batch_size: 16
   }
 }
 layer {
@@ -45,7 +45,7 @@ layer {
   data_param {
     backend: LMDB
     source: "/opt/data_sets/UCF-101/lmdb/"
-    batch_size: 100
+    batch_size: 16
   }
 }
 layer {
@@ -54,8 +54,8 @@ layer {
   top: "sequence"
   dummy_data_param {
     shape {
-      dim: 100
-      dim: 4096
+      dim: 16
+      dim: 1
     }
     data_filler {
       type: "sequence"
@@ -441,16 +441,29 @@ layer {
     dropout_ratio: 0.5
   }
 }
+layer {
+  name: "reshape-fc6"
+  type: "Reshape"
+  top: "reshape-fc6"
+  bottom: "fc6"
+  reshape_param {
+    shape {
+      dim: 16
+      dim: 1
+      dim: 4096
+    }
+  }
 
+}
 layer {
   name: "lstm"
   type: "LSTM"
-  bottom: "fc6"
+  bottom: "reshape-fc6"
   bottom: "sequence"
   top: "lstm"
   include { stage: "unfactored" }
   recurrent_param {
-    num_output: 1000
+    num_output: 100
     weight_filler {
       type: "uniform"
       min: -0.08
@@ -465,12 +478,12 @@ layer {
 layer {
   name: "lstm"
   type: "LSTM"
-  bottom: "fc6"
+  bottom: "reshape-fc6"
   bottom: "sequence"
   top: "lstm"
   include { stage: "factored" }
   recurrent_param {
-    num_output: 1000
+    num_output: 100
     weight_filler {
       type: "uniform"
       min: -0.08
