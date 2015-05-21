@@ -23,7 +23,7 @@ layer {
   data_param {
     backend: LMDB
     source: "/opt/data_sets/UCF-101/lmdb/"
-    batch_size: 16
+    batch_size: 64
   }
 }
 layer {
@@ -45,7 +45,7 @@ layer {
   data_param {
     backend: LMDB
     source: "/opt/data_sets/UCF-101/lmdb/"
-    batch_size: 16
+    batch_size: 64
   }
 }
 layer {
@@ -55,7 +55,7 @@ layer {
   dummy_data_param {
     shape {
       dim: 16
-      dim: 1
+      dim: 4
     }
     data_filler {
       type: "sequence"
@@ -449,11 +449,10 @@ layer {
   reshape_param {
     shape {
       dim: 16
-      dim: 1
+      dim: 4
       dim: 4096
     }
   }
-
 }
 layer {
   name: "lstm"
