@@ -69,32 +69,9 @@ layer {
   bottom: "data"
   top: "conv1"
   param {
-    lr_mult: 0
-  }
-  param {
-    lr_mult: 0
-  }
-  include { stage: "freeze-convnet" }
-  convolution_param {
-    num_output: 96
-    kernel_size: 11
-    stride: 4
-  }
-}
-layer {
-  name: "conv1"
-  type: "Convolution"
-  bottom: "data"
-  top: "conv1"
-  param {
     lr_mult: 0.1
     decay_mult: 1
   }
-  param {
-    lr_mult: 0.2
-    decay_mult: 0
-  }
-  exclude { stage: "freeze-convnet" }
   convolution_param {
     num_output: 96
     kernel_size: 11
@@ -143,33 +120,9 @@ layer {
   bottom: "norm1"
   top: "conv2"
   param {
-    lr_mult: 0
-  }
-  param {
-    lr_mult: 0
-  }
-  include { stage: "freeze-convnet" }
-  convolution_param {
-    num_output: 256
-    pad: 2
-    kernel_size: 5
-    group: 2
-  }
-}
-layer {
-  name: "conv2"
-  type: "Convolution"
-  bottom: "norm1"
-  top: "conv2"
-  param {
     lr_mult: 0.1
     decay_mult: 1
   }
-  param {
-    lr_mult: 0.2
-    decay_mult: 0
-  }
-  exclude { stage: "freeze-convnet" }
   convolution_param {
     num_output: 256
     pad: 2
@@ -219,32 +172,9 @@ layer {
   bottom: "norm2"
   top: "conv3"
   param {
-    lr_mult: 0
-  }
-  param {
-    lr_mult: 0
-  }
-  include { stage: "freeze-convnet" }
-  convolution_param {
-    num_output: 384
-    pad: 1
-    kernel_size: 3
-  }
-}
-layer {
-  name: "conv3"
-  type: "Convolution"
-  bottom: "norm2"
-  top: "conv3"
-  param {
     lr_mult: 0.1
     decay_mult: 1
   }
-  param {
-    lr_mult: 0.2
-    decay_mult: 0
-  }
-  exclude { stage: "freeze-convnet" }
   convolution_param {
     num_output: 384
     pad: 1
@@ -271,33 +201,9 @@ layer {
   bottom: "conv3"
   top: "conv4"
   param {
-    lr_mult: 0
-  }
-  param {
-    lr_mult: 0
-  }
-  include { stage: "freeze-convnet" }
-  convolution_param {
-    num_output: 384
-    pad: 1
-    kernel_size: 3
-    group: 2
-  }
-}
-layer {
-  name: "conv4"
-  type: "Convolution"
-  bottom: "conv3"
-  top: "conv4"
-  param {
     lr_mult: 0.1
     decay_mult: 1
   }
-  param {
-    lr_mult: 0.2
-    decay_mult: 0
-  }
-  exclude { stage: "freeze-convnet" }
   convolution_param {
     num_output: 384
     pad: 1
@@ -325,33 +231,9 @@ layer {
   bottom: "conv4"
   top: "conv5"
   param {
-    lr_mult: 0
-  }
-  param {
-    lr_mult: 0
-  }
-  include { stage: "freeze-convnet" }
-  convolution_param {
-    num_output: 256
-    pad: 1
-    kernel_size: 3
-    group: 2
-  }
-}
-layer {
-  name: "conv5"
-  type: "Convolution"
-  bottom: "conv4"
-  top: "conv5"
-  param {
     lr_mult: 0.1
     decay_mult: 1
   }
-  param {
-    lr_mult: 0.2
-    decay_mult: 0
-  }
-  exclude { stage: "freeze-convnet" }
   convolution_param {
     num_output: 256
     pad: 1
@@ -390,30 +272,9 @@ layer {
   bottom: "pool5"
   top: "fc6"
   param {
-    lr_mult: 0
-  }
-  param {
-    lr_mult: 0
-  }
-  include { stage: "freeze-convnet" }
-  inner_product_param {
-    num_output: 4096
-  }
-}
-layer {
-  name: "fc6"
-  type: "InnerProduct"
-  bottom: "pool5"
-  top: "fc6"
-  param {
     lr_mult: 0.1
     decay_mult: 1
   }
-  param {
-    lr_mult: 0.2
-    decay_mult: 0
-  }
-  exclude { stage: "freeze-convnet" }
   inner_product_param {
     num_output: 4096
     weight_filler {
@@ -460,9 +321,8 @@ layer {
   bottom: "reshape-fc6"
   bottom: "sequence"
   top: "lstm"
-  include { stage: "unfactored" }
   recurrent_param {
-    num_output: 100
+    num_output: 1
     weight_filler {
       type: "uniform"
       min: -0.08
@@ -474,26 +334,27 @@ layer {
     }
   }
 }
-layer {
-  name: "lstm"
-  type: "LSTM"
-  bottom: "reshape-fc6"
-  bottom: "sequence"
-  top: "lstm"
-  include { stage: "factored" }
-  recurrent_param {
-    num_output: 100
-    weight_filler {
-      type: "uniform"
-      min: -0.08
-      max: 0.08
-    }
-    bias_filler {
-      type: "constant"
-      value: 0
-    }
-  }
-}
+#layer {
+#  name: "fc7"
+#  type: "InnerProduct"
+#  bottom: "lstm"
+#  top: "fc7"
+#  param {
+#    lr_mult: 0.2
+#    decay_mult: 0
+#  }
+#  inner_product_param {
+#    num_output: 16
+#    weight_filler {
+#      type: "gaussian"
+#      std: 0.005
+#    }
+#    bias_filler {
+#      type: "constant"
+#      value: 1
+#    }
+#  }
+#}
 layer {
   name: "loss"
   type: "SoftmaxWithLoss"
@@ -508,17 +369,17 @@ layer {
   #   axis: 2
   # }
 }
-layer {
-  name: "accuracy"
-  type: "Accuracy"
-  bottom: "lstm"
-  bottom: "label"
-  top: "accuracy"
-  include {
-    phase: TEST
-  }
-  # accuracy_param {
-  #   axis: 2
-  #   ignore_label: -1
-  # }
-}
+#layer {
+#  name: "accuracy"
+#  type: "Accuracy"
+#  bottom: "fc7"
+#  bottom: "label"
+#  top: "accuracy"
+#  include {
+#    phase: TEST
+#  }
+#  # accuracy_param {
+#  #   axis: 2
+#  #   ignore_label: -1
+#  # }
+#}
