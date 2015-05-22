@@ -95,6 +95,10 @@ bool ReadImageToDatum(const string& filename, const int label,
     const int height, const int width, const bool is_color,
     const std::string & encoding, Datum* datum);
 
+bool ReadMultipleImagesToDatum(const std::vector<std::string> & filenames, const int label,
+    const int height, const int width, const bool is_color,
+    const std::string & encoding, Datum* datum);
+
 inline bool ReadImageToDatum(const string& filename, const int label,
     const int height, const int width, const bool is_color, Datum* datum) {
   return ReadImageToDatum(filename, label, height, width, is_color,
