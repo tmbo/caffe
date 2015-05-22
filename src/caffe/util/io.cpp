@@ -111,6 +111,7 @@ static bool matchExt(const std::string & fn,
     return true;
   return false;
 }
+
 bool ReadImageToDatum(const string& filename, const int label,
     const int height, const int width, const bool is_color,
     const std::string & encoding, Datum* datum) {
@@ -120,6 +121,56 @@ bool ReadImageToDatum(const string& filename, const int label,
       if ( (cv_img.channels() == 3) == is_color && !height && !width &&
           matchExt(filename, encoding) )
         return ReadFileToDatum(filename, label, datum);
+      std::vector<uchar> buf;
+      cv::imencode("."+encoding, cv_img, buf);
+      datum->set_data(std::string(reinterpret_cast<char*>(&buf[0]),
+                      buf.size()));
+      datum->set_label(label);
+      datum->set_encoded(true);
+      return true;
+    }
+    CVMatToDatum(cv_img, datum);
+    datum->set_label(label);
+    return true;
+  } else {
+    return false;
+  }
+}
+
+bool ReadMultipleImagesToDatum(const std::vector<std::string> & filenames, const int label,
+    const int height, const int width, const bool is_color,
+    const std::string & encoding, Datum* datum) {
+  std::vector<cv::Mat> cv_images;
+  for (int i = 0; i < filenames.size(); i++){
+      cv_images.push_back(ReadImageToCVMat(filenames.at(i), height, width, false));
+  }
+  std::vector<cv::Mat> output;
+  output.push_back(cv_images.front());
+  std::vector<int> fromTo;
+  for (int i = 0; i < filenames.size(); i++){
+      fromTo.push_back(i);
+      fromTo.push_back(i);
+  }
+//  cv::mixChannels(cv_images, output, fromTo);
+
+  cv::Mat outputMat;
+  cv::merge(cv_images, outputMat);
+
+  std::vector<cv::Mat> splitChannels;
+  cv::split(outputMat, splitChannels);
+
+  for (int i = 0; i < splitChannels.size(); i++){
+    cv::namedWindow("test", 0);
+    cv::imshow("test", splitChannels[i]);
+    cv::waitKey(0);
+  }
+
+  cv::Mat cv_img = output[0];
+  if (cv_img.data) {
+    if (encoding.size()) {
+//      if ( (cv_img.channels() == 3) == is_color && !height && !width &&
+//          matchExt(filename, encoding) )
+//        return ReadFileToDatum(filename, label, datum);
       std::vector<uchar> buf;
       cv::imencode("."+encoding, cv_img, buf);
       datum->set_data(std::string(reinterpret_cast<char*>(&buf[0]),
