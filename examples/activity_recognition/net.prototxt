@@ -322,7 +322,7 @@ layer {
   bottom: "sequence"
   top: "lstm"
   recurrent_param {
-    num_output: 1
+    num_output: 256
     weight_filler {
       type: "uniform"
       min: -0.08
@@ -332,6 +332,29 @@ layer {
       type: "constant"
       value: 0
     }
+  }
+}
+layer {
+  name: "prediction"
+  type: "InnerProduct"
+  bottom: "lstm"
+  top: "prediction"
+  param {
+    lr_mult: 0.2
+    decay_mult: 0
+  }
+  inner_product_param {
+    num_output: 3
+    weight_filler {
+      type: "uniform"
+      min: -0.08
+      max: 0.08
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+    axis: 2
   }
 }
 #layer {
@@ -356,15 +379,24 @@ layer {
 #  }
 #}
 layer {
+  name: "reshape-prediction"
+  type: "Reshape"
+  top: "reshape-prediction"
+  bottom: "prediction"
+  reshape_param {
+    shape {
+      dim: 64
+      dim: 3
+    }
+  }
+}
+layer {
   name: "loss"
   type: "SoftmaxWithLoss"
-  bottom: "lstm"
+  bottom: "reshape-prediction"
   bottom: "label"
   top: "loss"
   # loss_weight: 20
-  # loss_param {
-  #   ignore_label: -1
-  # }
   # softmax_param {
   #   axis: 2
   # }
@@ -372,7 +404,7 @@ layer {
 #layer {
 #  name: "accuracy"
 #  type: "Accuracy"
-#  bottom: "fc7"
+#  bottom: "reshape-prediction"
 #  bottom: "label"
 #  top: "accuracy"
 #  include {
