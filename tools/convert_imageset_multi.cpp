@@ -52,12 +52,12 @@ int main(int argc, char** argv) {
   gflags::SetUsageMessage("Convert a set of images to the leveldb/lmdb\n"
         "format used as input for Caffe.\n"
         "Usage:\n"
-        "    convert_imageset [FLAGS] ROOTFOLDER/ LISTFILE DB_NAME\n"
+        "    convert_imageset [FLAGS] ROOTFOLDER/ LISTFILE DB_NAME STACK_SIZE\n"
         "The ImageNet dataset for the training demo is at\n"
         "    http://www.image-net.org/download-images\n");
   gflags::ParseCommandLineFlags(&argc, &argv, true);
 
-  if (argc < 4) {
+  if (argc < 5) {
     gflags::ShowUsageWithFlagsRestrict(argv[0], "tools/convert_imageset");
     return 1;
   }
@@ -102,7 +102,8 @@ int main(int argc, char** argv) {
   bool data_size_initialized = false;
 
   for (int line_id = 0; line_id < lines.size(); ++line_id) {
-      int split = 20;
+      std::string splitStr(argv[4]);
+      int split = std::atoi(splitStr.c_str());
     if (line_id % split == 0)
     {
         bool status;
