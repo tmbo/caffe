@@ -22,7 +22,7 @@ layer {
   }
   data_param {
     backend: LMDB
-    source: "/opt/data_sets/UCF-101/lmdb/"
+    source: "/opt/data_sets/UCF-101/recurrent_lmdb_train/"
     batch_size: 64
   }
 }
@@ -33,7 +33,6 @@ layer {
   top: "label"
   include {
     phase: TEST
-    stage: "test-on-train"
   }
   transform_param {
     mirror: true
@@ -44,7 +43,7 @@ layer {
   }
   data_param {
     backend: LMDB
-    source: "/opt/data_sets/UCF-101/lmdb/"
+    source: "/opt/data_sets/UCF-101/recurrent_lmdb_test/"
     batch_size: 64
   }
 }
@@ -313,7 +312,7 @@ layer {
     decay_mult: 1
   }
   inner_product_param {
-    num_output: 3
+    num_output: 6
     weight_filler {
       type: "uniform"
       min: -0.08
@@ -355,7 +354,7 @@ layer {
   reshape_param {
     shape {
       dim: 64
-      dim: 3
+      dim: 6
     }
   }
 }
@@ -370,17 +369,17 @@ layer {
   #   axis: 2
   # }
 }
-#layer {
-#  name: "accuracy"
-#  type: "Accuracy"
-#  bottom: "reshape-prediction"
-#  bottom: "label"
-#  top: "accuracy"
-#  include {
-#    phase: TEST
-#  }
-#  # accuracy_param {
-#  #   axis: 2
-#  #   ignore_label: -1
-#  # }
-#}
+layer {
+  name: "accuracy"
+  type: "Accuracy"
+  bottom: "reshape-prediction"
+  bottom: "label"
+  top: "accuracy"
+  include {
+    phase: TEST
+  }
+  # accuracy_param {
+  #   axis: 2
+  #   ignore_label: -1
+  # }
+}
