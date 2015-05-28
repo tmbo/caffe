@@ -156,14 +156,14 @@ bool ReadMultipleImagesToDatum(const std::vector<std::string> & filenames, const
   cv::Mat outputMat;
   cv::merge(cv_images, outputMat);
 
-  std::vector<cv::Mat> splitChannels;
-  cv::split(outputMat, splitChannels);
+//  std::vector<cv::Mat> splitChannels;
+//  cv::split(outputMat, splitChannels);
 
-  for (int i = 0; i < splitChannels.size(); i++){
-    cv::namedWindow("test", 0);
-    cv::imshow("test", splitChannels[i]);
-    cv::waitKey(0);
-  }
+//  for (int i = 0; i < splitChannels.size(); i++){
+//    cv::namedWindow("test", 0);
+//    cv::imshow("test", splitChannels[i]);
+//    cv::waitKey(0);
+//  }
 
   cv::Mat cv_img = output[0];
   if (cv_img.data) {
