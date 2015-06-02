@@ -1,4 +1,5 @@
 ## General
+build-cmake/
 
 # Compiled Object files
 *.slo
