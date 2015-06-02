@@ -1,4 +1,5 @@
 ## General
+*.tlog*
 build-cmake/
 
 # Compiled Object files
