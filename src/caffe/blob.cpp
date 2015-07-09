@@ -384,17 +384,30 @@ bool Blob<Dtype>::ShapeEquals(const BlobProto& other) {
     // methods as these index from the beginning of the blob shape, where legacy
     // parameter blobs were indexed from the end of the blob shape (e.g., bias
     // Blob shape (1 x 1 x 1 x N), IP layer weight Blob shape (1 x 1 x M x N)).
-    return shape_.size() <= 4 &&
+    bool result = shape_.size() <= 4 &&
            LegacyShape(-4) == other.num() &&
            LegacyShape(-3) == other.channels() &&
            LegacyShape(-2) == other.height() &&
            LegacyShape(-1) == other.width();
+
+  if (!result) {
+    LOG(INFO) << "Shapes did not match";
+    LOG(INFO) << "Shape: " << shape_[0] << "," << shape_[1] << "," << shape_[2] << "," << shape_[3];
+    LOG(INFO) << "Other shape: " << other.num() << "," << other.channels() << "," << other.height() << "," << other.width();
+  }
+    return result;
   }
   vector<int> other_shape(other.shape().dim_size());
   for (int i = 0; i < other.shape().dim_size(); ++i) {
     other_shape[i] = other.shape().dim(i);
   }
-  return shape_ == other_shape;
+  bool result = shape_ == other_shape;
+  if (!result) {
+    LOG(INFO) << "Shapes did not match";
+    LOG(INFO) << "Shape: " << shape_[0] << "," << shape_[1] << "," << shape_[2] << "," << shape_[3];
+    LOG(INFO) << "Other shape: " << other_shape[0] << "," << other_shape[1] << "," << other_shape[2] << "," << other_shape[3];
+  }
+  return result;
 }
 
 template <typename Dtype>
