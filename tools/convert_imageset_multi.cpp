@@ -1,7 +1,7 @@
 // This program converts a set of images to a lmdb/leveldb by storing them
 // as Datum proto buffers.
 // Usage:
-//   convert_imageset [FLAGS] ROOTFOLDER/ LISTFILE DB_NAME
+//   convert_imageset_multi [FLAGS] ROOTFOLDER/ LISTFILE DB_NAME
 //
 // where ROOTFOLDER is the root folder that holds all the images, and LISTFILE
 // should be a list of files as well as their labels, in the format as
@@ -52,7 +52,7 @@ int main(int argc, char** argv) {
   gflags::SetUsageMessage("Convert a set of images to the leveldb/lmdb\n"
         "format used as input for Caffe.\n"
         "Usage:\n"
-        "    convert_imageset [FLAGS] ROOTFOLDER/ LISTFILE DB_NAME STACK_SIZE\n"
+        "    convert_imageset_multi [FLAGS] ROOTFOLDER/ LISTFILE DB_NAME STACK_SIZE\n"
         "The ImageNet dataset for the training demo is at\n"
         "    http://www.image-net.org/download-images\n");
   gflags::ParseCommandLineFlags(&argc, &argv, true);
@@ -104,6 +104,7 @@ int main(int argc, char** argv) {
   for (int line_id = 0; line_id < lines.size(); ++line_id) {
       std::string splitStr(argv[4]);
       int split = std::atoi(splitStr.c_str());
+      LOG(INFO) << "Stack size is " << split;
     if (line_id % split == 0)
     {
         bool status;
@@ -121,10 +122,14 @@ int main(int argc, char** argv) {
         for (int i = line_id; i < split + line_id; i++){
             allFiles.push_back(root_folder + lines[i].first);
         }
+
         status = ReadMultipleImagesToDatum(allFiles,
             lines[line_id].second, resize_height, resize_width, is_color,
             enc, &datum);
-        if (status == false) continue;
+        if (status == false) {
+          LOG(WARNING) << "Could not read images starting from " << line_id;
+          continue;
+        }
         if (check_size) {
           if (!data_size_initialized) {
             data_size = datum.channels() * datum.height() * datum.width();
@@ -135,6 +140,7 @@ int main(int argc, char** argv) {
                 << data.size();
           }
         }
+
         // sequential
         int length = snprintf(key_cstr, kMaxKeyLength, "%08d_%s", line_id,
             lines[line_id].first.c_str());

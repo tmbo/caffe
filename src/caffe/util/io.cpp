@@ -144,13 +144,13 @@ bool ReadMultipleImagesToDatum(const std::vector<std::string> & filenames, const
   for (int i = 0; i < filenames.size(); i++){
       cv_images.push_back(ReadImageToCVMat(filenames.at(i), height, width, false));
   }
-  std::vector<cv::Mat> output;
-  output.push_back(cv_images.front());
-  std::vector<int> fromTo;
-  for (int i = 0; i < filenames.size(); i++){
-      fromTo.push_back(i);
-      fromTo.push_back(i);
-  }
+//  std::vector<cv::Mat> output;
+//  output.push_back(cv_images.front());
+//  std::vector<int> fromTo;
+//  for (int i = 0; i < filenames.size(); i++){
+//      fromTo.push_back(i);
+//      fromTo.push_back(i);
+//  }
 //  cv::mixChannels(cv_images, output, fromTo);
 
   cv::Mat outputMat;
@@ -165,7 +165,7 @@ bool ReadMultipleImagesToDatum(const std::vector<std::string> & filenames, const
 //    cv::waitKey(0);
 //  }
 
-  cv::Mat cv_img = output[0];
+  cv::Mat cv_img = outputMat;
   if (cv_img.data) {
     if (encoding.size()) {
 //      if ( (cv_img.channels() == 3) == is_color && !height && !width &&
