@@ -31,7 +31,7 @@ DEFINE_bool(gray, false,
     "When this option is on, treat images as grayscale ones");
 DEFINE_bool(shuffle, false,
     "Randomly shuffle the order of images and their labels");
-DEFINE_string(backend, "lmdb",
+DEFINE_string(backend, "leveldb",
         "The backend {lmdb, leveldb} for storing the result");
 DEFINE_int32(resize_width, 0, "Width images are resized to");
 DEFINE_int32(resize_height, 0, "Height images are resized to");
