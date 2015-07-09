@@ -104,7 +104,7 @@ int main(int argc, char** argv) {
   for (int line_id = 0; line_id < lines.size(); ++line_id) {
       std::string splitStr(argv[4]);
       int split = std::atoi(splitStr.c_str());
-      LOG(INFO) << "Stack size is " << split;
+//      LOG(INFO) << "Stack size is " << split;
     if (line_id % split == 0)
     {
         bool status;
