@@ -40,8 +40,8 @@ void AccuracyLayer<Dtype>::Reshape(
       << "e.g., if label axis == 1 and prediction shape is (N, C, H, W), "
       << "label count (number of labels) must be N*H*W, "
       << "with integer values in {0, 1, ..., C-1}.";
-  // Top will contain: accuracy, precision, recall
-  top[0]->Reshape(1, 3, 1, 1);
+  // Top will contain: accuracy, precision, recall, positives
+  top[0]->Reshape(1, 4, 1, 1);
 }
 
 template <typename Dtype>
@@ -88,9 +88,13 @@ void AccuracyLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
 
   // LOG(INFO) << "Accuracy: " << accuracy;
   const Dtype denominator = (denominator_ == 0) ? count : denominator_;
+  const Dtype prec_den = (confusion[1][1] + confusion[1][0] != 0) ? confusion[1][1] + confusion[1][0] : 1;
+  const Dtype rec_den = (confusion[1][1] + confusion[0][1] != 0) ? confusion[1][1] + confusion[0][1] : 1;
   top[0]->mutable_cpu_data()[0] = accuracy / denominator;
-  top[0]->mutable_cpu_data()[1] = confusion[1][1] / (confusion[1][1] + confusion[1][0]);
-  top[0]->mutable_cpu_data()[2] = confusion[1][1] / (confusion[1][1] + confusion[0][1]);
+  top[0]->mutable_cpu_data()[1] = confusion[1][1] / prec_den;
+  top[0]->mutable_cpu_data()[2] = confusion[1][1] / rec_den;
+  top[0]->mutable_cpu_data()[3] = (confusion[1][1] + confusion[0][1]) / count;
+  top[0]->mutable_cpu_data()[4] = (confusion[1][0] + confusion[1][1]) / count;
   // Accuracy layer should not be used as a loss function.
 }
 
