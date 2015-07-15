@@ -40,14 +40,15 @@ void AccuracyLayer<Dtype>::Reshape(
       << "e.g., if label axis == 1 and prediction shape is (N, C, H, W), "
       << "label count (number of labels) must be N*H*W, "
       << "with integer values in {0, 1, ..., C-1}.";
-  vector<int> top_shape(0);  // Accuracy is a scalar; 0 axes.
-  top[0]->Reshape(top_shape);
+  // Top will contain: accuracy, precision, recall
+  top[0]->Reshape(1, 3, 1, 1);
 }
 
 template <typename Dtype>
 void AccuracyLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
     const vector<Blob<Dtype>*>& top) {
   Dtype accuracy = 0;
+  int confusion[bottom[1]->count()][bottom[1]->count()];
   const Dtype* bottom_data = bottom[0]->cpu_data();
   const Dtype* bottom_label = bottom[1]->cpu_data();
   const int dim = bottom[0]->count() / outer_num_;
@@ -74,6 +75,7 @@ void AccuracyLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
           bottom_data_vector.begin(), bottom_data_vector.begin() + top_k_,
           bottom_data_vector.end(), std::greater<std::pair<Dtype, int> >());
       // check if true label is in top k predictions
+      ++confusion[label_value][bottom_data_vector[0].second];
       for (int k = 0; k < top_k_; k++) {
         if (bottom_data_vector[k].second == label_value) {
           ++accuracy;
@@ -87,6 +89,8 @@ void AccuracyLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
   // LOG(INFO) << "Accuracy: " << accuracy;
   const Dtype denominator = (denominator_ == 0) ? count : denominator_;
   top[0]->mutable_cpu_data()[0] = accuracy / denominator;
+  top[0]->mutable_cpu_data()[1] = confusion[1][1] / (confusion[1][1] + confusion[1][0]);
+  top[0]->mutable_cpu_data()[2] = confusion[1][1] / (confusion[1][1] + confusion[0][1]);
   // Accuracy layer should not be used as a loss function.
 }
 
