@@ -27,7 +27,7 @@ using namespace caffe;  // NOLINT(build/namespaces)
 using std::pair;
 using boost::scoped_ptr;
 
-DEFINE_bool(gray, true,
+DEFINE_bool(gray, false,
     "When this option is on, treat images as grayscale ones");
 DEFINE_bool(shuffle, false,
     "Randomly shuffle the order of images and their labels");
@@ -121,13 +121,21 @@ int main(int argc, char** argv) {
         std::vector<std::string> allFiles;
         for (int i = line_id; i < split + line_id; i++){
             allFiles.push_back(root_folder + lines[i].first);
+//            LOG(INFO) << lines[i].first;
         }
 
-        status = ReadMultipleImagesToDatum(allFiles,
-            lines[line_id].second, resize_height, resize_width, is_color,
-            enc, &datum);
-        if (status == false) {
-          LOG(WARNING) << "Could not read images starting from " << line_id;
+        try {
+            status = ReadMultipleImagesToDatum(allFiles,
+                lines[line_id].second, resize_height, resize_width, is_color,
+                enc, &datum);
+            if (status == false) {
+              LOG(WARNING) << "Could not read images starting from " << line_id;
+              continue;
+            }
+        }
+        catch (int e) {
+          LOG(ERROR) << "An exception occurred. Exception " << e << ".";
+          LOG(ERROR) << "Current line: " << line_id;
           continue;
         }
         if (check_size) {
