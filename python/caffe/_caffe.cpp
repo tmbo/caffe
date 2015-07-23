@@ -7,6 +7,7 @@
 #include <boost/python.hpp>
 #include <boost/python/raw_function.hpp>
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
+#include "boost/algorithm/string.hpp"
 #include <numpy/arrayobject.h>
 
 // these need to be included after boost on OS X
@@ -85,11 +86,15 @@ shared_ptr<Net<Dtype> > Net_Init(
 shared_ptr<Net<Dtype> > Net_Init_Load(
     string param_file, string pretrained_param_file, int phase) {
   CheckFile(param_file);
-  CheckFile(pretrained_param_file);
-
   shared_ptr<Net<Dtype> > net(new Net<Dtype>(param_file,
       static_cast<Phase>(phase)));
-  net->CopyTrainedLayersFrom(pretrained_param_file);
+
+  std::vector<std::string> model_names;
+  boost::split(model_names, pretrained_param_file, boost::is_any_of(","));
+  for (int i = 0; i < model_names.size(); ++i) {
+    CheckFile(model_names[i]);
+    net->CopyTrainedLayersFrom(model_names[i]);
+  }
   return net;
 }
 
